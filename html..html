@@ -1,0 +1,722 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TypeFlow Pro - Typing & Certificate</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+ --bg:#080d1c;
+ --card:#151f39;
+ --text:#fff;
+ --muted:#aab5cf;
+ --purple:#8b5cf6;
+ --cyan:#22d3ee;
+ --gold:#c59a42;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,sans-serif}
+
+body{
+ background:var(--bg);
+ color:var(--text);
+ min-height:100vh;
+ overflow-x:hidden;
+}
+
+.background{
+ position:fixed;inset:0;z-index:-1;
+ background:
+ radial-gradient(circle at 15% 15%,#582ca866,transparent 40%),
+ radial-gradient(circle at 85% 85%,#087bba55,transparent 40%),
+ #080d1c;
+}
+
+header{
+ max-width:1150px;margin:auto;padding:25px;
+ display:flex;justify-content:space-between;align-items:center;
+}
+
+.logo{font-size:25px;font-weight:900}
+.logo span{color:var(--cyan)}
+
+button{
+ border:0;padding:12px 18px;border-radius:10px;
+ cursor:pointer;font-weight:700;transition:.2s;
+}
+button:hover{transform:translateY(-2px);filter:brightness(1.12)}
+
+.primary{background:linear-gradient(120deg,#8b5cf6,#287fe9);color:white}
+.secondary{background:#293652;color:white;border:1px solid #ffffff22}
+.gold{background:linear-gradient(120deg,#d4a74e,#f3d38a);color:#17223c}
+
+main{max-width:1050px;margin:25px auto;padding:20px}
+
+.hero{text-align:center;margin-bottom:30px}
+.hero h1{font-size:clamp(32px,5vw,55px);font-weight:900}
+.hero h1 span{
+ background:linear-gradient(90deg,#a78bfa,#22d3ee);
+ color:transparent;background-clip:text;
+}
+.hero p{color:var(--muted);margin-top:12px}
+
+.panel{
+ background:rgba(22,32,59,.9);
+ border:1px solid #ffffff15;
+ border-radius:20px;padding:25px;margin-bottom:22px;
+ box-shadow:0 15px 50px #0003;
+}
+
+.settings{display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between}
+.setting-label{color:var(--muted);font-size:12px;margin-bottom:12px;font-weight:700}
+.options{display:flex;gap:8px;flex-wrap:wrap}
+.option{background:#263453;color:white;border:1px solid #ffffff15}
+.option.active{background:#8058ef}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:20px 0}
+.stat{background:#192642;padding:20px;border-radius:15px;border:1px solid #ffffff12}
+.stat h2{color:var(--cyan);font-size:28px;margin:10px 0}
+.stat p{color:var(--muted);font-size:11px}
+
+.timer{font-size:32px;color:var(--cyan);font-weight:900}
+.track{height:7px;background:#33415d;border-radius:20px;margin:18px 0;overflow:hidden}
+.progress{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#22d3ee)}
+
+.text-display{
+ background:#0e1930;padding:22px;border-radius:13px;
+ line-height:2;font-size:18px;margin:20px 0;
+ word-break:break-word;
+}
+.correct{color:#4ade80}
+.wrong{background:#fb718544;color:#fb7185;text-decoration:underline}
+.current{border-left:2px solid #22d3ee}
+
+textarea{
+ width:100%;height:110px;padding:16px;
+ background:#263453;border:1px solid #ffffff22;
+ color:white;border-radius:12px;font-size:16px;
+ outline:none;resize:vertical;
+}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.actions button{flex:1}
+
+#result{display:none;text-align:center}
+#result h2{color:#a78bfa;font-size:32px;margin-bottom:12px}
+.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.result-box{background:#243452;padding:17px;border-radius:13px}
+.result-box strong{font-size:26px;color:var(--cyan)}
+.result-box p{font-size:12px;color:var(--muted);margin-top:5px}
+
+/* Certificate section */
+
+#certificateSection{display:none}
+.certificate-controls{display:flex;flex-wrap:wrap;gap:12px;margin:15px 0}
+.certificate-controls input{
+ padding:13px;flex:1;min-width:200px;
+ background:#253451;border:1px solid #ffffff22;
+ border-radius:10px;color:white;outline:none;
+}
+.certificate-controls select{
+ padding:13px;background:#253451;color:white;
+ border:1px solid #ffffff22;border-radius:10px;
+}
+
+.certificate{
+ background:#fff;color:#1a2944;
+ padding:12px;
+ max-width:850px;
+ margin:20px auto;
+ box-shadow:0 20px 60px #0005;
+}
+
+.cert-inner{
+ border:5px double #bd984f;
+ padding:35px 30px;
+ min-height:530px;
+ text-align:center;
+ position:relative;
+ display:flex;
+ flex-direction:column;
+ justify-content:center;
+}
+
+.cert-top{
+ font-size:13px;letter-spacing:3px;font-weight:800;
+ color:#9c7836;
+}
+
+.cert-symbol{
+ font-size:36px;margin:15px 0;
+}
+
+.cert-heading{
+ font-family:Georgia,serif;
+ font-size:32px;color:#182e52;
+ letter-spacing:3px;margin:10px 0;
+}
+
+.cert-subheading{
+ color:#9c7836;font-size:12px;
+ font-weight:800;letter-spacing:2px;
+}
+
+.cert-line{
+ height:2px;background:#bd984f;
+ margin:20px auto;width:75%;
+}
+
+.cert-intro{font-family:Georgia,serif;font-size:17px;color:#4b5563}
+.student-name{
+ font-family:Georgia,serif;font-size:35px;
+ color:#182e52;font-weight:bold;
+ margin:18px 0 12px;
+ border-bottom:1px solid #bd984f;
+ display:inline-block;padding:0 20px 10px;
+}
+
+.cert-description{
+ font-family:Georgia,serif;font-size:16px;
+ color:#49536a;line-height:1.8;
+}
+
+.cert-data{
+ display:grid;grid-template-columns:repeat(3,1fr);
+ gap:10px;margin:28px 0;
+}
+.cert-data div{
+ border:1px solid #c7a45f;
+ padding:12px 5px;
+}
+.cert-data strong{display:block;font-size:23px;color:#182e52}
+.cert-data small{color:#68758b;font-size:10px}
+
+.cert-bottom{
+ display:flex;justify-content:space-between;
+ align-items:end;margin-top:25px;text-align:left;
+ gap:15px;
+}
+.cert-bottom div{font-size:11px;color:#45516a;line-height:1.8}
+.signature{
+ font-family:cursive;font-size:19px;
+ color:#182e52;border-bottom:1px solid #182e52;
+ padding:0 8px 5px;
+}
+.cert-note{
+ font-size:9px;color:#777;margin-top:25px;line-height:1.6;
+}
+
+/* University variation */
+.certificate.university .cert-inner{
+ border:12px solid #234c69;
+ outline:2px solid #c59a42;
+ outline-offset:-18px;
+}
+.certificate.university .cert-heading{
+ color:#234c69;font-size:35px;
+}
+.certificate.university .cert-top{color:#234c69}
+.certificate.university .cert-line{background:#234c69}
+
+footer{text-align:center;color:#8290aa;padding:25px;font-size:12px}
+
+@media(max-width:600px){
+ .stats{grid-template-columns:repeat(2,1fr)}
+ .result-stats{grid-template-columns:repeat(2,1fr)}
+ .panel{padding:17px}
+ .cert-inner{padding:20px 12px;min-height:480px}
+ .cert-heading{font-size:22px}
+ .student-name{font-size:24px}
+ .cert-data strong{font-size:17px}
+ .cert-data{gap:5px}
+ .cert-bottom{flex-wrap:wrap}
+}
+</style>
+</head>
+
+<body>
+<div class="background"></div>
+
+<header>
+ <div class="logo">TypeFlow<span>.</span></div>
+ <button class="secondary" onclick="toggleTheme()">🌙 Theme</button>
+</header>
+
+<main>
+
+<section class="hero">
+ <h1>Typing <span>Master Pro</span></h1>
+ <p>Improve your typing speed and earn your digital achievement certificate.</p>
+</section>
+
+<div class="panel settings">
+ <div>
+  <div class="setting-label">TEST TIME</div>
+  <div class="options" id="times">
+   <button class="option" data-value="15">15s</button>
+   <button class="option" data-value="30">30s</button>
+   <button class="option active" data-value="60">60s</button>
+   <button class="option" data-value="120">120s</button>
+  </div>
+ </div>
+
+ <div>
+  <div class="setting-label">DIFFICULTY</div>
+  <div class="options" id="levels">
+   <button class="option active" data-value="easy">Easy</button>
+   <button class="option" data-value="medium">Medium</button>
+   <button class="option" data-value="hard">Hard</button>
+  </div>
+ </div>
+</div>
+
+<div class="stats">
+ <div class="stat"><h2 id="wpm">0</h2><p>WPM</p></div>
+ <div class="stat"><h2 id="accuracy">100%</h2><p>ACCURACY</p></div>
+ <div class="stat"><h2 id="cpm">0</h2><p>CPM</p></div>
+ <div class="stat"><h2 id="errors">0</h2><p>ERRORS</p></div>
+</div>
+
+<div class="panel">
+ <div style="display:flex;justify-content:space-between;align-items:center">
+  <div><p style="color:#aab5cf;font-size:12px">TIME REMAINING</p>
+  <div class="timer" id="timer">60s</div></div>
+  <div style="text-align:right">
+   <p style="color:#aab5cf;font-size:12px">PERSONAL BEST</p>
+   <h2 id="best" style="color:#fbbf24">0 WPM</h2>
+  </div>
+ </div>
+
+ <div class="track"><div class="progress" id="progress"></div></div>
+ <div class="text-display" id="display"></div>
+
+ <textarea id="typing" placeholder="Click Start Test and type here..." disabled></textarea>
+
+ <div class="actions">
+  <button class="primary" onclick="startTest()">▶ Start Test</button>
+  <button class="secondary" onclick="resetTest()">↻ Restart</button>
+  <button class="secondary" onclick="newParagraph()">✦ New Text</button>
+ </div>
+</div>
+
+<div class="panel" id="result">
+ <h2>🏆 Test Completed!</h2>
+ <p id="resultMessage" style="color:#aab5cf">Your performance report is ready.</p>
+
+ <div class="result-stats">
+  <div class="result-box"><strong id="rWpm">0</strong><p>WPM</p></div>
+  <div class="result-box"><strong id="rAcc">0%</strong><p>ACCURACY</p></div>
+  <div class="result-box"><strong id="rCpm">0</strong><p>CPM</p></div>
+  <div class="result-box"><strong id="rErr">0</strong><p>ERRORS</p></div>
+  <div class="result-box"><strong id="rCorrect">0</strong><p>CORRECT CHARACTERS</p></div>
+  <div class="result-box"><strong id="rTime">0</strong><p>SECONDS</p></div>
+ </div>
+
+ <button class="gold" onclick="showCertificate()">🎓 Generate Certificate</button>
+</div>
+
+<!-- CERTIFICATE GENERATOR -->
+
+<div class="panel" id="certificateSection">
+ <h2 style="color:#f2cb75;text-align:center">🎓 Certificate Studio</h2>
+ <p style="text-align:center;color:#aab5cf;margin:12px 0">
+  Create your personalized typing achievement certificate.
+ </p>
+
+ <div class="certificate-controls">
+  <input id="studentName" placeholder="Enter your full name" maxlength="60">
+  <select id="certType" onchange="renderCertificate()">
+   <option value="official">Government-inspired Formal</option>
+   <option value="university">University Academic</option>
+  </select>
+ </div>
+
+ <div class="certificate" id="certificate">
+  <div class="cert-inner" id="certInner">
+
+   <div class="cert-top">TYPEFLOW PRO · DIGITAL SKILL ASSESSMENT</div>
+   <div class="cert-symbol">✦</div>
+   <div class="cert-subheading">CERTIFICATE OF ACHIEVEMENT</div>
+   <div class="cert-heading" id="certHeading">TYPING PROFICIENCY</div>
+   <div class="cert-line"></div>
+
+   <p class="cert-intro">This certificate is proudly presented to</p>
+   <div class="student-name" id="certName">Student Name</div>
+
+   <p class="cert-description">
+    For successfully completing the TypeFlow Pro typing speed assessment
+    and demonstrating the following performance.
+   </p>
+
+   <div class="cert-data">
+    <div><strong id="certWpm">0</strong><small>WORDS PER MINUTE</small></div>
+    <div><strong id="certAcc">0%</strong><small>ACCURACY</small></div>
+    <div><strong id="certTime">60s</strong><small>TEST DURATION</small></div>
+   </div>
+
+   <div class="cert-bottom">
+    <div>
+     <strong>Certificate ID</strong><br>
+     <span id="certId"></span><br>
+     <strong>Date</strong><br>
+     <span id="certDate"></span>
+    </div>
+
+    <div style="text-align:center">
+     <div class="signature">TypeFlow Pro</div>
+     <strong>Digital Assessment</strong><br>
+     Independent Certificate
+    </div>
+   </div>
+
+   <div class="cert-note">
+    This is an independently generated digital typing achievement certificate.
+    It is not issued, endorsed, or accredited by any government department,
+    university, or examination authority.
+   </div>
+
+  </div>
+ </div>
+
+ <div class="actions">
+  <button class="gold" onclick="downloadPDF()">⬇ Download PDF</button>
+  <button class="primary" onclick="window.print()">🖨 Print Certificate</button>
+  <button class="secondary" onclick="copyCertificateId()">📋 Copy ID</button>
+ </div>
+</div>
+
+</main>
+
+<footer>TYPEFLOW PRO © 2026 · Learn · Practice · Achieve</footer>
+
+<script>
+
+const paragraphs={
+ easy:[
+ "Learning is a beautiful journey. Every day gives us an opportunity to improve our knowledge and skills.",
+ "Practice makes progress. Stay focused and believe in your ability to achieve great things.",
+ "Technology makes our lives easier. Computers help us learn, communicate and explore new opportunities."
+ ],
+ medium:[
+ "Technology continues to transform education, communication and business. Digital skills are increasingly important.",
+ "Successful people understand that consistency, discipline and patience are essential ingredients for personal growth.",
+ "Programming develops logical thinking and creativity. Building projects helps students understand modern technology."
+ ],
+ hard:[
+ "Artificial intelligence, cybersecurity and data analytics are transforming the modern digital ecosystem.",
+ "Efficient communication, problem-solving and adaptability are essential qualities in today's competitive environment.",
+ "JavaScript developers create interactive applications using functions, variables, conditional statements and asynchronous operations."
+ ]
+};
+
+let duration=60,level="easy",text="",timer=null;
+let started=false,finished=false,timeLeft=60,elapsed=0;
+let best=Number(localStorage.getItem("tfBest"))||0;
+let finalStats=null;
+let certificateId="";
+
+const typing=document.getElementById("typing");
+
+function selectOptions(id,callback){
+ document.querySelectorAll("#"+id+" button").forEach(btn=>{
+  btn.onclick=()=>{
+   if(started)return;
+   document.querySelectorAll("#"+id+" button").forEach(x=>x.classList.remove("active"));
+   btn.classList.add("active");
+   callback(btn.dataset.value);
+   resetTest();
+  };
+ });
+}
+
+selectOptions("times",v=>duration=Number(v));
+selectOptions("levels",v=>level=v);
+
+function newParagraph(){
+ if(started)return;
+ resetTest();
+}
+
+function chooseText(){
+ const arr=paragraphs[level];
+ text=arr[Math.floor(Math.random()*arr.length)];
+ renderText();
+}
+
+function renderText(){
+ let value=typing.value,html="";
+ for(let i=0;i<text.length;i++){
+  let cls="";
+  if(i<value.length)cls=value[i]===text[i]?"correct":"wrong";
+  else if(i===value.length&&!finished)cls="current";
+  let c=text[i]===" "?"&nbsp;":
+   text[i].replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  html+=`<span class="${cls}">${c}</span>`;
+ }
+ document.getElementById("display").innerHTML=html;
+}
+
+function stats(){
+ let value=typing.value,correct=0,errors=0;
+ for(let i=0;i<value.length;i++){
+  if(value[i]===text[i])correct++;
+  else errors++;
+ }
+ let mins=Math.max(elapsed/60,1/60);
+ return {
+  correct,errors,
+  wpm:Math.round(correct/5/mins),
+  cpm:Math.round(correct/mins),
+  accuracy:value.length?Math.round(correct/value.length*100):100
+ };
+}
+
+function updateStats(){
+ let s=stats();
+ wpm.textContent=s.wpm;
+ cpm.textContent=s.cpm;
+ accuracy.textContent=s.accuracy+"%";
+ errors.textContent=s.errors;
+}
+
+function startTest(){
+ if(started||finished)return;
+ started=true;
+ typing.disabled=false;
+ typing.focus();
+ timer=setInterval(()=>{
+  timeLeft--;
+  elapsed=duration-timeLeft;
+  document.getElementById("timer").textContent=timeLeft+"s";
+  document.getElementById("progress").style.width=elapsed/duration*100+"%";
+  updateStats();
+  if(timeLeft<=0)finishTest();
+ },1000);
+}
+
+typing.addEventListener("input",()=>{
+ if(!started||finished)return;
+ renderText();
+ updateStats();
+ if(typing.value.length>=text.length)finishTest();
+});
+
+function finishTest(){
+ if(finished)return;
+ clearInterval(timer);
+ if(started)elapsed=duration-timeLeft;
+ started=false;
+ finished=true;
+ typing.disabled=true;
+
+ renderText();
+ finalStats=stats();
+
+ document.getElementById("result").style.display="block";
+ rWpm.textContent=finalStats.wpm;
+ rAcc.textContent=finalStats.accuracy+"%";
+ rCpm.textContent=finalStats.cpm;
+ rErr.textContent=finalStats.errors;
+ rCorrect.textContent=finalStats.correct;
+ rTime.textContent=elapsed+"s";
+
+ resultMessage.textContent=
+ finalStats.wpm>=40?"Excellent typing performance!":
+ finalStats.wpm>=25?"Great progress! Keep practicing!":
+ "Every practice session makes you better!";
+
+ if(finalStats.wpm>best&&elapsed>0){
+  best=finalStats.wpm;
+  localStorage.setItem("tfBest",best);
+ }
+ document.getElementById("best").textContent=best+" WPM";
+
+ document.getElementById("result").scrollIntoView({behavior:"smooth"});
+}
+
+function resetTest(){
+ clearInterval(timer);
+ started=false;
+ finished=false;
+ timeLeft=duration;
+ elapsed=0;
+ finalStats=null;
+ typing.value="";
+ typing.disabled=true;
+ document.getElementById("timer").textContent=duration+"s";
+ document.getElementById("progress").style.width="0%";
+ document.getElementById("result").style.display="none";
+ document.getElementById("certificateSection").style.display="none";
+ wpm.textContent=0;
+ cpm.textContent=0;
+ accuracy.textContent="100%";
+ errors.textContent=0;
+ document.getElementById("best").textContent=best+" WPM";
+ chooseText();
+}
+
+function showCertificate(){
+ if(!finished||!finalStats){
+  alert("Please complete your typing test first.");
+  return;
+ }
+ document.getElementById("certificateSection").style.display="block";
+ document.getElementById("certificateSection").scrollIntoView({behavior:"smooth"});
+ renderCertificate();
+}
+
+function renderCertificate(){
+ if(!finalStats)return;
+
+ let name=document.getElementById("studentName").value.trim()||"Student Name";
+ let type=document.getElementById("certType").value;
+
+ let heading=type==="official"?
+ "TYPING PROFICIENCY":"ACADEMIC SKILL ACHIEVEMENT";
+
+ document.getElementById("certHeading").textContent=heading;
+ document.getElementById("certName").textContent=name;
+ document.getElementById("certWpm").textContent=finalStats.wpm+" WPM";
+ document.getElementById("certAcc").textContent=finalStats.accuracy+"%";
+ document.getElementById("certTime").textContent=duration+"s";
+
+ if(!certificateId){
+  certificateId="TFP-"+new Date().getFullYear()+"-"+Math.random().toString(36).substring(2,9).toUpperCase();
+ }
+
+ document.getElementById("certId").textContent=certificateId;
+ document.getElementById("certDate").textContent=new Date().toLocaleDateString("en-IN");
+
+ document.getElementById("certificate").classList.toggle("university",type==="university");
+}
+
+document.getElementById("studentName").addEventListener("input",renderCertificate);
+
+function downloadPDF(){
+ if(!finished||!finalStats)return;
+
+ if(!window.jspdf){
+  alert("PDF library could not load. Check your internet connection.");
+  return;
+ }
+
+ const name=document.getElementById("studentName").value.trim();
+ if(!name){
+  alert("Please enter your full name first.");
+  document.getElementById("studentName").focus();
+  return;
+ }
+
+ renderCertificate();
+
+ const {jsPDF}=window.jspdf;
+ const pdf=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+
+ const type=document.getElementById("certType").value;
+ const gold=[190,150,65];
+ const navy=type==="university"?[35,76,105]:[24,46,82];
+
+ // Background and decorative border
+ pdf.setFillColor(255,255,255);
+ pdf.rect(0,0,297,210,"F");
+
+ pdf.setDrawColor(...gold);
+ pdf.setLineWidth(1.4);
+ pdf.rect(8,8,281,194);
+ pdf.setLineWidth(.5);
+ pdf.rect(12,12,273,186);
+
+ pdf.setTextColor(...gold);
+ pdf.setFont("times","bold");
+ pdf.setFontSize(12);
+ pdf.text("TYPEFLOW PRO  |  DIGITAL SKILL ASSESSMENT",148.5,28,{align:"center"});
+
+ pdf.setTextColor(...navy);
+ pdf.setFontSize(30);
+ pdf.text(type==="university"?
+ "ACADEMIC SKILL ACHIEVEMENT":
+ "TYPING PROFICIENCY CERTIFICATE",148.5,52,{align:"center"});
+
+ pdf.setDrawColor(...gold);
+ pdf.line(55,60,242,60);
+
+ pdf.setFont("times","normal");
+ pdf.setFontSize(16);
+ pdf.setTextColor(75,85,105);
+ pdf.text("This certificate is proudly presented to",148.5,78,{align:"center"});
+
+ pdf.setFont("times","bold");
+ pdf.setFontSize(29);
+ pdf.setTextColor(...navy);
+ pdf.text(name,148.5,99,{align:"center"});
+
+ pdf.setDrawColor(...gold);
+ pdf.line(65,105,232,105);
+
+ pdf.setFont("times","normal");
+ pdf.setFontSize(13);
+ pdf.setTextColor(75,85,105);
+ pdf.text("For successfully completing the TypeFlow Pro typing speed assessment",148.5,120,{align:"center"});
+ pdf.text("and demonstrating the following performance.",148.5,128,{align:"center"});
+
+ const boxes=[
+  {x:66,label:"TYPING SPEED",value:finalStats.wpm+" WPM"},
+  {x:126,label:"ACCURACY",value:finalStats.accuracy+"%"},
+  {x:186,label:"DURATION",value:duration+" SECONDS"}
+ ];
+
+ boxes.forEach(b=>{
+  pdf.setDrawColor(...gold);
+  pdf.rect(b.x-20,139,40,24);
+  pdf.setFont("times","bold");
+  pdf.setTextColor(...navy);
+  pdf.setFontSize(16);
+  pdf.text(b.value,b.x,150,{align:"center"});
+  pdf.setFontSize(7);
+  pdf.setTextColor(90,100,115);
+  pdf.text(b.label,b.x,158,{align:"center"});
+ });
+
+ pdf.setFont("helvetica","normal");
+ pdf.setFontSize(9);
+ pdf.setTextColor(60,70,90);
+ pdf.text("Certificate ID: "+certificateId,24,177);
+ pdf.text("Date: "+new Date().toLocaleDateString("en-IN"),24,184);
+
+ pdf.setFont("times","italic");
+ pdf.setFontSize(14);
+ pdf.setTextColor(...navy);
+ pdf.text("TypeFlow Pro",245,176,{align:"center"});
+ pdf.setFont("helvetica","normal");
+ pdf.setFontSize(8);
+ pdf.text("Digital Assessment",245,182,{align:"center"});
+
+ pdf.setFontSize(7);
+ pdf.setTextColor(110,110,110);
+ pdf.text("Independent digital certificate. Not issued or endorsed by any government department or university.",148.5,193,{align:"center"});
+
+ pdf.save("TypeFlow-Certificate-"+certificateId+".pdf");
+}
+
+function copyCertificateId(){
+ if(!certificateId)return;
+ navigator.clipboard.writeText(certificateId)
+ .then(()=>alert("Certificate ID copied!"))
+ .catch(()=>alert("Unable to copy ID."));
+}
+
+function toggleTheme(){
+ document.body.classList.toggle("light");
+}
+
+chooseText();
+document.getElementById("best").textContent=best+" WPM";
+
+</script>
+</body>
+</html>
